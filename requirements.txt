@@ -1,0 +1,6 @@
+scikit-learn
+numpy
+pandas
+tensorflow
+librosa
+tensorflow-metal; sys_platform == "darwin" and platform_machine == "arm64"  # Apple GPU // for mac

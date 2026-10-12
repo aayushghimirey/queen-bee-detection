@@ -1,0 +1,20 @@
+# Python
+venv/
+__pycache__/
+*.pyc
+
+# Datasets and cleaned audio (too big for git)
+# Matches bee_cricket_noise_dataset/, clean_audio_dataset/, queen_bee_dataset/, ...
+*_dataset/
+*.wav
+
+# Trained models (made again by running the train script)
+models/
+
+# Mac and editor files
+.DS_Store
+.vscode/
+.idea/
+
+# Secrets
+.env
