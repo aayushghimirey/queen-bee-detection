@@ -6,12 +6,8 @@ import librosa
 import numpy as np
 import soundfile as sf
 
-from bee_cricket_noise_train import (
-    CLIP_LENGTH,
-    MODEL_PATH,
-    SAMPLE_RATE,
-    make_spectrogram,
-)
+from bee_cricket_noise_train import MODEL_PATH
+from spectrogram import CLIP_LENGTH, SAMPLE_RATE, make_spectrogram
 
 OUTPUT_DIR = Path("clean_audio_dataset")
 

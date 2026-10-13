@@ -5,23 +5,15 @@ import librosa
 import numpy as np
 from keras import layers
 
+from spectrogram import SAMPLE_RATE, make_spectrogram
+
 DATA_DIR = Path("bee_cricket_noise_dataset")
 MODEL_PATH = Path("models/bee_cricket_noise_model.keras")
 
 # The position in this list is the label: 0 = bee, 1 = cricket, 2 = noise
 CLASS_NAMES = ["bee", "cricket", "noise"]
 
-SAMPLE_RATE = 22050
-CLIP_LENGTH = SAMPLE_RATE * 2  # every clip is 2 seconds long
 EPOCHS = 5  # how many times the model goes through the training clips
-
-
-def make_spectrogram(audio):
-    """Turn a clip of audio into a spectrogram (a 2D picture of the sound)."""
-    # Pad with silence or cut, so every clip is exactly 2 seconds.
-    audio = librosa.util.fix_length(audio, size=CLIP_LENGTH)
-    mel = librosa.feature.melspectrogram(y=audio, sr=SAMPLE_RATE)
-    return librosa.power_to_db(mel, ref=np.max)
 
 
 def load_dataset(split):
