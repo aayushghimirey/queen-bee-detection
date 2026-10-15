@@ -3,8 +3,8 @@ from pathlib import Path
 import keras
 import librosa
 import numpy as np
-from keras import layers
 
+from cnn_model import build_model
 from spectrogram import SAMPLE_RATE, make_spectrogram
 
 DATA_DIR = Path("bee_cricket_noise_dataset")
@@ -33,36 +33,13 @@ def load_dataset(split):
     return np.array(X)[..., np.newaxis], np.array(y)
 
 
-def build_model(input_shape):
-    """A small CNN: spectrogram in, three probabilities out (bee, cricket, noise)."""
-    model = keras.Sequential(
-        [
-            layers.Input(shape=input_shape),
-            layers.Conv2D(32, (3, 3), activation="relu"),
-            layers.MaxPooling2D((2, 2)),
-            layers.Conv2D(64, (3, 3), activation="relu"),
-            layers.MaxPooling2D((2, 2)),
-            layers.Flatten(),
-            layers.Dense(64, activation="relu"),
-            layers.Dropout(0.3),
-            layers.Dense(len(CLASS_NAMES), activation="softmax"),
-        ]
-    )
-    model.compile(
-        optimizer="adam",
-        loss="sparse_categorical_crossentropy",
-        metrics=["accuracy"],
-    )
-    return model
-
-
 def train_model():
     keras.utils.set_random_seed(42)  # same results every run
 
     X_train, y_train = load_dataset("train")
     X_test, y_test = load_dataset("test")
 
-    model = build_model(X_train.shape[1:])
+    model = build_model(X_train.shape[1:], len(CLASS_NAMES))
     model.fit(X_train, y_train, epochs=EPOCHS)
 
     # See how well the model does on clips it has never heard.
