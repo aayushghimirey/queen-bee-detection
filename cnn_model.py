@@ -7,6 +7,9 @@ def build_model(input_shape, class_count):
     model = keras.Sequential(
         [
             layers.Input(shape=input_shape),
+            # Spectrograms go from -80 dB (quiet) to 0 dB (loudest); squeeze that into 0 to 1.
+            # Big input numbers can make the model so sure of itself early on that it stops learning.
+            layers.Rescaling(1 / 80, offset=1),
             layers.Conv2D(32, (3, 3), activation="relu"),
             layers.MaxPooling2D((2, 2)),
             layers.Conv2D(64, (3, 3), activation="relu"),
