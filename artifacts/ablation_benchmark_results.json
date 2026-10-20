@@ -1,0 +1,693 @@
+{
+  "experiments": {
+    "Temperature Only (7)": {
+      "feature_count": 7,
+      "feature_names": [
+        "temperature_mean",
+        "temperature_std",
+        "temperature_range",
+        "temp_cv",
+        "brood_temp_adherence",
+        "temp_diurnal_drop",
+        "temp_linear_trend"
+      ],
+      "champion_model": "Baseline (Logistic Regression)",
+      "rf_test_metrics": {
+        "accuracy": 0.8245614035087719,
+        "macro_f1": 0.8200757575757576,
+        "weighted_f1": 0.8235645933014353,
+        "roc_auc": 0.865625,
+        "pr_auc": 0.8307920828109251,
+        "weak_recall": 0.76,
+        "weak_precision": 0.8260869565217391,
+        "weak_f1": 0.7916666666666666,
+        "strong_recall": 0.875,
+        "strong_precision": 0.8235294117647058,
+        "strong_f1": 0.8484848484848485,
+        "confusion_matrix": [
+          [
+            19,
+            6
+          ],
+          [
+            4,
+            28
+          ]
+        ]
+      },
+      "champion_test_metrics": {
+        "accuracy": 0.8070175438596491,
+        "macro_f1": 0.7946282345234196,
+        "weighted_f1": 0.8008228891915343,
+        "roc_auc": 0.905,
+        "pr_auc": 0.9266806162906076,
+        "weak_recall": 0.64,
+        "weak_precision": 0.8888888888888888,
+        "weak_f1": 0.7441860465116279,
+        "strong_recall": 0.9375,
+        "strong_precision": 0.7692307692307693,
+        "strong_f1": 0.8450704225352113,
+        "confusion_matrix": [
+          [
+            16,
+            9
+          ],
+          [
+            2,
+            30
+          ]
+        ]
+      },
+      "all_models_test_metrics": {
+        "Baseline (Logistic Regression)": {
+          "accuracy": 0.8070175438596491,
+          "macro_f1": 0.7946282345234196,
+          "weighted_f1": 0.8008228891915343,
+          "roc_auc": 0.905,
+          "pr_auc": 0.9266806162906076,
+          "weak_recall": 0.64,
+          "weak_precision": 0.8888888888888888,
+          "weak_f1": 0.7441860465116279,
+          "strong_recall": 0.9375,
+          "strong_precision": 0.7692307692307693,
+          "strong_f1": 0.8450704225352113,
+          "confusion_matrix": [
+            [
+              16,
+              9
+            ],
+            [
+              2,
+              30
+            ]
+          ]
+        },
+        "Random Forest": {
+          "accuracy": 0.8245614035087719,
+          "macro_f1": 0.8200757575757576,
+          "weighted_f1": 0.8235645933014353,
+          "roc_auc": 0.865625,
+          "pr_auc": 0.8307920828109251,
+          "weak_recall": 0.76,
+          "weak_precision": 0.8260869565217391,
+          "weak_f1": 0.7916666666666666,
+          "strong_recall": 0.875,
+          "strong_precision": 0.8235294117647058,
+          "strong_f1": 0.8484848484848485,
+          "confusion_matrix": [
+            [
+              19,
+              6
+            ],
+            [
+              4,
+              28
+            ]
+          ]
+        },
+        "HistGradientBoosting": {
+          "accuracy": 0.8245614035087719,
+          "macro_f1": 0.8200757575757576,
+          "weighted_f1": 0.8235645933014353,
+          "roc_auc": 0.8675,
+          "pr_auc": 0.8388983594559313,
+          "weak_recall": 0.76,
+          "weak_precision": 0.8260869565217391,
+          "weak_f1": 0.7916666666666666,
+          "strong_recall": 0.875,
+          "strong_precision": 0.8235294117647058,
+          "strong_f1": 0.8484848484848485,
+          "confusion_matrix": [
+            [
+              19,
+              6
+            ],
+            [
+              4,
+              28
+            ]
+          ]
+        },
+        "Gradient Boosting (GBDT)": {
+          "accuracy": 0.8421052631578947,
+          "macro_f1": 0.8347826086956522,
+          "weighted_f1": 0.8390541571319603,
+          "roc_auc": 0.87875,
+          "pr_auc": 0.8715351900493317,
+          "weak_recall": 0.72,
+          "weak_precision": 0.9,
+          "weak_f1": 0.8,
+          "strong_recall": 0.9375,
+          "strong_precision": 0.8108108108108109,
+          "strong_f1": 0.8695652173913043,
+          "confusion_matrix": [
+            [
+              18,
+              7
+            ],
+            [
+              2,
+              30
+            ]
+          ]
+        }
+      }
+    },
+    "Humidity Only (3)": {
+      "feature_count": 3,
+      "feature_names": [
+        "humidity_mean",
+        "humidity_std",
+        "humidity_range"
+      ],
+      "champion_model": "Baseline (Logistic Regression)",
+      "rf_test_metrics": {
+        "accuracy": 0.7192982456140351,
+        "macro_f1": 0.7185185185185186,
+        "weighted_f1": 0.7203378817413905,
+        "roc_auc": 0.8325,
+        "pr_auc": 0.8701806811165126,
+        "weak_recall": 0.76,
+        "weak_precision": 0.6551724137931034,
+        "weak_f1": 0.7037037037037037,
+        "strong_recall": 0.6875,
+        "strong_precision": 0.7857142857142857,
+        "strong_f1": 0.7333333333333333,
+        "confusion_matrix": [
+          [
+            19,
+            6
+          ],
+          [
+            10,
+            22
+          ]
+        ]
+      },
+      "champion_test_metrics": {
+        "accuracy": 0.7017543859649122,
+        "macro_f1": 0.6922832645284218,
+        "weighted_f1": 0.698913049533965,
+        "roc_auc": 0.76375,
+        "pr_auc": 0.8310696274219784,
+        "weak_recall": 0.6,
+        "weak_precision": 0.6818181818181818,
+        "weak_f1": 0.6382978723404256,
+        "strong_recall": 0.78125,
+        "strong_precision": 0.7142857142857143,
+        "strong_f1": 0.746268656716418,
+        "confusion_matrix": [
+          [
+            15,
+            10
+          ],
+          [
+            7,
+            25
+          ]
+        ]
+      },
+      "all_models_test_metrics": {
+        "Baseline (Logistic Regression)": {
+          "accuracy": 0.7017543859649122,
+          "macro_f1": 0.6922832645284218,
+          "weighted_f1": 0.698913049533965,
+          "roc_auc": 0.76375,
+          "pr_auc": 0.8310696274219784,
+          "weak_recall": 0.6,
+          "weak_precision": 0.6818181818181818,
+          "weak_f1": 0.6382978723404256,
+          "strong_recall": 0.78125,
+          "strong_precision": 0.7142857142857143,
+          "strong_f1": 0.746268656716418,
+          "confusion_matrix": [
+            [
+              15,
+              10
+            ],
+            [
+              7,
+              25
+            ]
+          ]
+        },
+        "Random Forest": {
+          "accuracy": 0.7192982456140351,
+          "macro_f1": 0.7185185185185186,
+          "weighted_f1": 0.7203378817413905,
+          "roc_auc": 0.8325,
+          "pr_auc": 0.8701806811165126,
+          "weak_recall": 0.76,
+          "weak_precision": 0.6551724137931034,
+          "weak_f1": 0.7037037037037037,
+          "strong_recall": 0.6875,
+          "strong_precision": 0.7857142857142857,
+          "strong_f1": 0.7333333333333333,
+          "confusion_matrix": [
+            [
+              19,
+              6
+            ],
+            [
+              10,
+              22
+            ]
+          ]
+        },
+        "HistGradientBoosting": {
+          "accuracy": 0.7368421052631579,
+          "macro_f1": 0.7315541601255887,
+          "weighted_f1": 0.7361811121209618,
+          "roc_auc": 0.850625,
+          "pr_auc": 0.883482219141952,
+          "weak_recall": 0.68,
+          "weak_precision": 0.7083333333333334,
+          "weak_f1": 0.6938775510204082,
+          "strong_recall": 0.78125,
+          "strong_precision": 0.7575757575757576,
+          "strong_f1": 0.7692307692307693,
+          "confusion_matrix": [
+            [
+              17,
+              8
+            ],
+            [
+              7,
+              25
+            ]
+          ]
+        },
+        "Gradient Boosting (GBDT)": {
+          "accuracy": 0.7368421052631579,
+          "macro_f1": 0.7355397463656046,
+          "weighted_f1": 0.7378188744363228,
+          "roc_auc": 0.8200000000000001,
+          "pr_auc": 0.8672355162980852,
+          "weak_recall": 0.76,
+          "weak_precision": 0.6785714285714286,
+          "weak_f1": 0.7169811320754716,
+          "strong_recall": 0.71875,
+          "strong_precision": 0.7931034482758621,
+          "strong_f1": 0.7540983606557377,
+          "confusion_matrix": [
+            [
+              19,
+              6
+            ],
+            [
+              9,
+              23
+            ]
+          ]
+        }
+      }
+    },
+    "Environmental Microclimate (10)": {
+      "feature_count": 10,
+      "feature_names": [
+        "temperature_mean",
+        "temperature_std",
+        "temperature_range",
+        "temp_cv",
+        "brood_temp_adherence",
+        "temp_diurnal_drop",
+        "temp_linear_trend",
+        "humidity_mean",
+        "humidity_std",
+        "humidity_range"
+      ],
+      "champion_model": "Baseline (Logistic Regression)",
+      "rf_test_metrics": {
+        "accuracy": 0.8421052631578947,
+        "macro_f1": 0.8347826086956522,
+        "weighted_f1": 0.8390541571319603,
+        "roc_auc": 0.87,
+        "pr_auc": 0.8728105810042899,
+        "weak_recall": 0.72,
+        "weak_precision": 0.9,
+        "weak_f1": 0.8,
+        "strong_recall": 0.9375,
+        "strong_precision": 0.8108108108108109,
+        "strong_f1": 0.8695652173913043,
+        "confusion_matrix": [
+          [
+            18,
+            7
+          ],
+          [
+            2,
+            30
+          ]
+        ]
+      },
+      "champion_test_metrics": {
+        "accuracy": 0.8070175438596491,
+        "macro_f1": 0.7946282345234196,
+        "weighted_f1": 0.8008228891915343,
+        "roc_auc": 0.8625,
+        "pr_auc": 0.8823179318272496,
+        "weak_recall": 0.64,
+        "weak_precision": 0.8888888888888888,
+        "weak_f1": 0.7441860465116279,
+        "strong_recall": 0.9375,
+        "strong_precision": 0.7692307692307693,
+        "strong_f1": 0.8450704225352113,
+        "confusion_matrix": [
+          [
+            16,
+            9
+          ],
+          [
+            2,
+            30
+          ]
+        ]
+      },
+      "all_models_test_metrics": {
+        "Baseline (Logistic Regression)": {
+          "accuracy": 0.8070175438596491,
+          "macro_f1": 0.7946282345234196,
+          "weighted_f1": 0.8008228891915343,
+          "roc_auc": 0.8625,
+          "pr_auc": 0.8823179318272496,
+          "weak_recall": 0.64,
+          "weak_precision": 0.8888888888888888,
+          "weak_f1": 0.7441860465116279,
+          "strong_recall": 0.9375,
+          "strong_precision": 0.7692307692307693,
+          "strong_f1": 0.8450704225352113,
+          "confusion_matrix": [
+            [
+              16,
+              9
+            ],
+            [
+              2,
+              30
+            ]
+          ]
+        },
+        "Random Forest": {
+          "accuracy": 0.8421052631578947,
+          "macro_f1": 0.8347826086956522,
+          "weighted_f1": 0.8390541571319603,
+          "roc_auc": 0.87,
+          "pr_auc": 0.8728105810042899,
+          "weak_recall": 0.72,
+          "weak_precision": 0.9,
+          "weak_f1": 0.8,
+          "strong_recall": 0.9375,
+          "strong_precision": 0.8108108108108109,
+          "strong_f1": 0.8695652173913043,
+          "confusion_matrix": [
+            [
+              18,
+              7
+            ],
+            [
+              2,
+              30
+            ]
+          ]
+        },
+        "HistGradientBoosting": {
+          "accuracy": 0.8070175438596491,
+          "macro_f1": 0.8008891711654493,
+          "weighted_f1": 0.8051790320513893,
+          "roc_auc": 0.86625,
+          "pr_auc": 0.8463929825661876,
+          "weak_recall": 0.72,
+          "weak_precision": 0.8181818181818182,
+          "weak_f1": 0.7659574468085106,
+          "strong_recall": 0.875,
+          "strong_precision": 0.8,
+          "strong_f1": 0.835820895522388,
+          "confusion_matrix": [
+            [
+              18,
+              7
+            ],
+            [
+              4,
+              28
+            ]
+          ]
+        },
+        "Gradient Boosting (GBDT)": {
+          "accuracy": 0.8421052631578947,
+          "macro_f1": 0.8347826086956522,
+          "weighted_f1": 0.8390541571319603,
+          "roc_auc": 0.89875,
+          "pr_auc": 0.9092607735185563,
+          "weak_recall": 0.72,
+          "weak_precision": 0.9,
+          "weak_f1": 0.8,
+          "strong_recall": 0.9375,
+          "strong_precision": 0.8108108108108109,
+          "strong_f1": 0.8695652173913043,
+          "confusion_matrix": [
+            [
+              18,
+              7
+            ],
+            [
+              2,
+              30
+            ]
+          ]
+        }
+      }
+    }
+  },
+  "per_hive_breakdown": [
+    {
+      "hive_id": "D3_384",
+      "samples": 5,
+      "strong_samples": 5,
+      "weak_samples": 0,
+      "majority_label": "Strong",
+      "Temperature Only (7)_acc": 1.0,
+      "Temperature Only (7)_correct": "5/5",
+      "Temperature Only (7)_mean_prob_strong": 0.8651641561823459,
+      "Humidity Only (3)_acc": 0.6,
+      "Humidity Only (3)_correct": "3/5",
+      "Humidity Only (3)_mean_prob_strong": 0.6810330355558827,
+      "Environmental Microclimate (10)_acc": 1.0,
+      "Environmental Microclimate (10)_correct": "5/5",
+      "Environmental Microclimate (10)_mean_prob_strong": 0.8975443425369549
+    },
+    {
+      "hive_id": "D3_400",
+      "samples": 7,
+      "strong_samples": 4,
+      "weak_samples": 3,
+      "majority_label": "Strong",
+      "Temperature Only (7)_acc": 0.7142857142857143,
+      "Temperature Only (7)_correct": "5/7",
+      "Temperature Only (7)_mean_prob_strong": 0.6422967815380269,
+      "Humidity Only (3)_acc": 0.8571428571428571,
+      "Humidity Only (3)_correct": "6/7",
+      "Humidity Only (3)_mean_prob_strong": 0.7722477227896178,
+      "Environmental Microclimate (10)_acc": 0.8571428571428571,
+      "Environmental Microclimate (10)_correct": "6/7",
+      "Environmental Microclimate (10)_mean_prob_strong": 0.6656891628023367
+    },
+    {
+      "hive_id": "D3_52",
+      "samples": 7,
+      "strong_samples": 3,
+      "weak_samples": 4,
+      "majority_label": "Weak",
+      "Temperature Only (7)_acc": 0.8571428571428571,
+      "Temperature Only (7)_correct": "6/7",
+      "Temperature Only (7)_mean_prob_strong": 0.5216338927590811,
+      "Humidity Only (3)_acc": 0.8571428571428571,
+      "Humidity Only (3)_correct": "6/7",
+      "Humidity Only (3)_mean_prob_strong": 0.6487968692147231,
+      "Environmental Microclimate (10)_acc": 0.8571428571428571,
+      "Environmental Microclimate (10)_correct": "6/7",
+      "Environmental Microclimate (10)_mean_prob_strong": 0.514584421231299
+    },
+    {
+      "hive_id": "D3_588",
+      "samples": 3,
+      "strong_samples": 1,
+      "weak_samples": 2,
+      "majority_label": "Weak",
+      "Temperature Only (7)_acc": 0.6666666666666666,
+      "Temperature Only (7)_correct": "2/3",
+      "Temperature Only (7)_mean_prob_strong": 0.8103879231322036,
+      "Humidity Only (3)_acc": 0.3333333333333333,
+      "Humidity Only (3)_correct": "1/3",
+      "Humidity Only (3)_mean_prob_strong": 0.7501857625315954,
+      "Environmental Microclimate (10)_acc": 0.3333333333333333,
+      "Environmental Microclimate (10)_correct": "1/3",
+      "Environmental Microclimate (10)_mean_prob_strong": 0.8235399826464921
+    },
+    {
+      "hive_id": "D3_613",
+      "samples": 4,
+      "strong_samples": 4,
+      "weak_samples": 0,
+      "majority_label": "Strong",
+      "Temperature Only (7)_acc": 0.75,
+      "Temperature Only (7)_correct": "3/4",
+      "Temperature Only (7)_mean_prob_strong": 0.8252526502466354,
+      "Humidity Only (3)_acc": 0.25,
+      "Humidity Only (3)_correct": "1/4",
+      "Humidity Only (3)_mean_prob_strong": 0.42253708637714416,
+      "Environmental Microclimate (10)_acc": 0.75,
+      "Environmental Microclimate (10)_correct": "3/4",
+      "Environmental Microclimate (10)_mean_prob_strong": 0.7647747644764876
+    },
+    {
+      "hive_id": "D3_63",
+      "samples": 4,
+      "strong_samples": 3,
+      "weak_samples": 1,
+      "majority_label": "Strong",
+      "Temperature Only (7)_acc": 0.25,
+      "Temperature Only (7)_correct": "1/4",
+      "Temperature Only (7)_mean_prob_strong": 0.4773715086608102,
+      "Humidity Only (3)_acc": 0.5,
+      "Humidity Only (3)_correct": "2/4",
+      "Humidity Only (3)_mean_prob_strong": 0.4352250682500953,
+      "Environmental Microclimate (10)_acc": 0.5,
+      "Environmental Microclimate (10)_correct": "2/4",
+      "Environmental Microclimate (10)_mean_prob_strong": 0.5106200044773308
+    },
+    {
+      "hive_id": "D5D6_105",
+      "samples": 2,
+      "strong_samples": 0,
+      "weak_samples": 2,
+      "majority_label": "Weak",
+      "Temperature Only (7)_acc": 1.0,
+      "Temperature Only (7)_correct": "2/2",
+      "Temperature Only (7)_mean_prob_strong": 0.1386407554549817,
+      "Humidity Only (3)_acc": 1.0,
+      "Humidity Only (3)_correct": "2/2",
+      "Humidity Only (3)_mean_prob_strong": 0.2741461872341014,
+      "Environmental Microclimate (10)_acc": 1.0,
+      "Environmental Microclimate (10)_correct": "2/2",
+      "Environmental Microclimate (10)_mean_prob_strong": 0.028992986928066487
+    },
+    {
+      "hive_id": "D5D6_263",
+      "samples": 5,
+      "strong_samples": 2,
+      "weak_samples": 3,
+      "majority_label": "Weak",
+      "Temperature Only (7)_acc": 1.0,
+      "Temperature Only (7)_correct": "5/5",
+      "Temperature Only (7)_mean_prob_strong": 0.5422216045703532,
+      "Humidity Only (3)_acc": 0.8,
+      "Humidity Only (3)_correct": "4/5",
+      "Humidity Only (3)_mean_prob_strong": 0.36622716348801054,
+      "Environmental Microclimate (10)_acc": 1.0,
+      "Environmental Microclimate (10)_correct": "5/5",
+      "Environmental Microclimate (10)_mean_prob_strong": 0.46789817565915215
+    },
+    {
+      "hive_id": "D5D6_298",
+      "samples": 3,
+      "strong_samples": 2,
+      "weak_samples": 1,
+      "majority_label": "Strong",
+      "Temperature Only (7)_acc": 1.0,
+      "Temperature Only (7)_correct": "3/3",
+      "Temperature Only (7)_mean_prob_strong": 0.6664453615544911,
+      "Humidity Only (3)_acc": 1.0,
+      "Humidity Only (3)_correct": "3/3",
+      "Humidity Only (3)_mean_prob_strong": 0.7215841360167845,
+      "Environmental Microclimate (10)_acc": 1.0,
+      "Environmental Microclimate (10)_correct": "3/3",
+      "Environmental Microclimate (10)_mean_prob_strong": 0.6583891975128614
+    },
+    {
+      "hive_id": "D5D6_366",
+      "samples": 2,
+      "strong_samples": 0,
+      "weak_samples": 2,
+      "majority_label": "Weak",
+      "Temperature Only (7)_acc": 1.0,
+      "Temperature Only (7)_correct": "2/2",
+      "Temperature Only (7)_mean_prob_strong": 0.016406163066664776,
+      "Humidity Only (3)_acc": 1.0,
+      "Humidity Only (3)_correct": "2/2",
+      "Humidity Only (3)_mean_prob_strong": 0.14764387250780844,
+      "Environmental Microclimate (10)_acc": 1.0,
+      "Environmental Microclimate (10)_correct": "2/2",
+      "Environmental Microclimate (10)_mean_prob_strong": 0.0030978588625526896
+    },
+    {
+      "hive_id": "D5D6_371",
+      "samples": 4,
+      "strong_samples": 2,
+      "weak_samples": 2,
+      "majority_label": "Strong",
+      "Temperature Only (7)_acc": 0.75,
+      "Temperature Only (7)_correct": "3/4",
+      "Temperature Only (7)_mean_prob_strong": 0.7288795998233903,
+      "Humidity Only (3)_acc": 0.75,
+      "Humidity Only (3)_correct": "3/4",
+      "Humidity Only (3)_mean_prob_strong": 0.6118328630795175,
+      "Environmental Microclimate (10)_acc": 0.75,
+      "Environmental Microclimate (10)_correct": "3/4",
+      "Environmental Microclimate (10)_mean_prob_strong": 0.7119225917963352
+    },
+    {
+      "hive_id": "D5D6_390",
+      "samples": 2,
+      "strong_samples": 1,
+      "weak_samples": 1,
+      "majority_label": "Strong",
+      "Temperature Only (7)_acc": 1.0,
+      "Temperature Only (7)_correct": "2/2",
+      "Temperature Only (7)_mean_prob_strong": 0.48845386058453716,
+      "Humidity Only (3)_acc": 1.0,
+      "Humidity Only (3)_correct": "2/2",
+      "Humidity Only (3)_mean_prob_strong": 0.5461510877413801,
+      "Environmental Microclimate (10)_acc": 1.0,
+      "Environmental Microclimate (10)_correct": "2/2",
+      "Environmental Microclimate (10)_mean_prob_strong": 0.46640338356595373
+    },
+    {
+      "hive_id": "D5D6_54",
+      "samples": 4,
+      "strong_samples": 2,
+      "weak_samples": 2,
+      "majority_label": "Strong",
+      "Temperature Only (7)_acc": 0.75,
+      "Temperature Only (7)_correct": "3/4",
+      "Temperature Only (7)_mean_prob_strong": 0.7668038228590522,
+      "Humidity Only (3)_acc": 0.5,
+      "Humidity Only (3)_correct": "2/4",
+      "Humidity Only (3)_mean_prob_strong": 0.5215318819740634,
+      "Environmental Microclimate (10)_acc": 0.75,
+      "Environmental Microclimate (10)_correct": "3/4",
+      "Environmental Microclimate (10)_mean_prob_strong": 0.7077251471126167
+    },
+    {
+      "hive_id": "D5D6_664",
+      "samples": 5,
+      "strong_samples": 3,
+      "weak_samples": 2,
+      "majority_label": "Strong",
+      "Temperature Only (7)_acc": 1.0,
+      "Temperature Only (7)_correct": "5/5",
+      "Temperature Only (7)_mean_prob_strong": 0.5635339470319535,
+      "Humidity Only (3)_acc": 0.8,
+      "Humidity Only (3)_correct": "4/5",
+      "Humidity Only (3)_mean_prob_strong": 0.5052377896857501,
+      "Environmental Microclimate (10)_acc": 1.0,
+      "Environmental Microclimate (10)_correct": "5/5",
+      "Environmental Microclimate (10)_mean_prob_strong": 0.5678721369315236
+    }
+  ],
+  "hive_level_average_accuracy": {
+    "Temperature Only (7)": 83.84353741496598,
+    "Humidity Only (3)": 73.19727891156464,
+    "Environmental Microclimate (10)": 84.2687074829932
+  }
+}

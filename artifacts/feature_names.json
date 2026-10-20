@@ -1,0 +1,12 @@
+[
+  "temperature_mean",
+  "temperature_std",
+  "temperature_range",
+  "humidity_mean",
+  "humidity_std",
+  "humidity_range",
+  "temp_cv",
+  "brood_temp_adherence",
+  "temp_diurnal_drop",
+  "temp_linear_trend"
+]
