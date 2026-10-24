@@ -1,42 +1,173 @@
 {
-  "champion_model": "Random Forest",
-  "feature_count": 10,
+  "champion_model": "Baseline (Logistic Regression)",
+  "selection_priority_metric": "weak_recall",
+  "weak_threshold": 0.425,
+  "label_mapping": {
+    "0": "Weak",
+    "1": "Strong"
+  },
+  "feature_count": 40,
+  "feature_names": [
+    "temperature_mean",
+    "temperature_std",
+    "temperature_min",
+    "temperature_max",
+    "temperature_range",
+    "temp_cv",
+    "temp_diurnal_drop",
+    "temp_linear_trend",
+    "temperature_mean_6h",
+    "temperature_mean_12h",
+    "temperature_std_6h",
+    "temperature_std_12h",
+    "temperature_min_6h",
+    "temperature_max_6h",
+    "brood_temp_adherence",
+    "humidity_mean",
+    "humidity_std",
+    "humidity_min",
+    "humidity_max",
+    "humidity_range",
+    "humidity_cv",
+    "humidity_linear_trend",
+    "humidity_mean_6h",
+    "humidity_mean_12h",
+    "humidity_std_6h",
+    "humidity_std_12h",
+    "humidity_min_6h",
+    "humidity_max_6h",
+    "temperature_change_6h",
+    "temperature_change_12h",
+    "temperature_change_24h",
+    "temperature_range_6h",
+    "temperature_range_12h",
+    "temperature_range_24h",
+    "humidity_change_6h",
+    "humidity_change_12h",
+    "humidity_change_24h",
+    "humidity_range_6h",
+    "humidity_range_12h",
+    "humidity_range_24h"
+  ],
   "validation_benchmarks": {
     "Baseline (Logistic Regression)": {
       "split": "Validation",
-      "accuracy": 0.8518518518518519,
-      "macro_f1": 0.8223684210526316,
-      "weighted_f1": 0.8464912280701754,
-      "roc_auc": 0.8024691358024691,
-      "pr_auc": 0.8460314976895882,
+      "weak_threshold": 0.425,
+      "accuracy": 0.8703703703703703,
+      "macro_f1": 0.8472727272727272,
+      "weighted_f1": 0.867070707070707,
+      "roc_auc": 0.8533950617283952,
+      "weak_pr_auc": 0.8549389388434678,
+      "strong_pr_auc": 0.8990040250909377,
+      "false_alarm_rate": 0.05555555555555555,
+      "false_alarm_count": 2,
+      "total_weak": 18,
+      "total_strong": 36,
+      "weak_detected": 13,
+      "weak_missed": 5,
+      "strong_correct": 34,
       "weak_class_metrics": {
-        "precision": 0.8571428571428571,
-        "recall": 0.6666666666666666,
-        "f1_score": 0.75
+        "precision": 0.8666666666666667,
+        "recall": 0.7222222222222222,
+        "f1_score": 0.7878787878787878
       },
       "strong_class_metrics": {
-        "precision": 0.85,
+        "precision": 0.8717948717948718,
         "recall": 0.9444444444444444,
-        "f1_score": 0.8947368421052632
+        "f1_score": 0.9066666666666666
       },
       "confusion_matrix": [
         [
-          12,
-          6
+          13,
+          5
         ],
         [
           2,
           34
         ]
-      ]
+      ],
+      "confusion_matrix_definition": {
+        "rows": [
+          "actual_weak_0",
+          "actual_strong_1"
+        ],
+        "columns": [
+          "predicted_weak_0",
+          "predicted_strong_1"
+        ],
+        "tp_weak": 13,
+        "fn_weak": 5,
+        "fp_weak": 2,
+        "tn_weak": 34
+      }
     },
     "Random Forest": {
       "split": "Validation",
+      "weak_threshold": 0.425,
+      "accuracy": 0.8518518518518519,
+      "macro_f1": 0.8282988871224165,
+      "weighted_f1": 0.8494965553789083,
+      "roc_auc": 0.7839506172839507,
+      "weak_pr_auc": 0.8241985535894729,
+      "strong_pr_auc": 0.8261151097227866,
+      "false_alarm_rate": 0.08333333333333333,
+      "false_alarm_count": 3,
+      "total_weak": 18,
+      "total_strong": 36,
+      "weak_detected": 13,
+      "weak_missed": 5,
+      "strong_correct": 33,
+      "weak_class_metrics": {
+        "precision": 0.8125,
+        "recall": 0.7222222222222222,
+        "f1_score": 0.7647058823529411
+      },
+      "strong_class_metrics": {
+        "precision": 0.868421052631579,
+        "recall": 0.9166666666666666,
+        "f1_score": 0.8918918918918919
+      },
+      "confusion_matrix": [
+        [
+          13,
+          5
+        ],
+        [
+          3,
+          33
+        ]
+      ],
+      "confusion_matrix_definition": {
+        "rows": [
+          "actual_weak_0",
+          "actual_strong_1"
+        ],
+        "columns": [
+          "predicted_weak_0",
+          "predicted_strong_1"
+        ],
+        "tp_weak": 13,
+        "fn_weak": 5,
+        "fp_weak": 3,
+        "tn_weak": 33
+      }
+    },
+    "HistGradientBoosting": {
+      "split": "Validation",
+      "weak_threshold": 0.425,
       "accuracy": 0.8333333333333334,
       "macro_f1": 0.8097847358121331,
       "weighted_f1": 0.8320939334637965,
-      "roc_auc": 0.8225308641975309,
-      "pr_auc": 0.8708256952697113,
+      "roc_auc": 0.808641975308642,
+      "weak_pr_auc": 0.8314145675612001,
+      "strong_pr_auc": 0.8666360085770188,
+      "false_alarm_rate": 0.1111111111111111,
+      "false_alarm_count": 4,
+      "total_weak": 18,
+      "total_strong": 36,
+      "weak_detected": 13,
+      "weak_missed": 5,
+      "strong_correct": 32,
       "weak_class_metrics": {
         "precision": 0.7647058823529411,
         "recall": 0.7222222222222222,
@@ -56,81 +187,99 @@
           4,
           32
         ]
-      ]
-    },
-    "HistGradientBoosting": {
-      "split": "Validation",
-      "accuracy": 0.7962962962962963,
-      "macro_f1": 0.7675146771037182,
-      "weighted_f1": 0.794781474233529,
-      "roc_auc": 0.8248456790123457,
-      "pr_auc": 0.8758175991294513,
-      "weak_class_metrics": {
-        "precision": 0.7058823529411765,
-        "recall": 0.6666666666666666,
-        "f1_score": 0.6857142857142857
-      },
-      "strong_class_metrics": {
-        "precision": 0.8378378378378378,
-        "recall": 0.8611111111111112,
-        "f1_score": 0.8493150684931506
-      },
-      "confusion_matrix": [
-        [
-          12,
-          6
+      ],
+      "confusion_matrix_definition": {
+        "rows": [
+          "actual_weak_0",
+          "actual_strong_1"
         ],
-        [
-          5,
-          31
-        ]
-      ]
+        "columns": [
+          "predicted_weak_0",
+          "predicted_strong_1"
+        ],
+        "tp_weak": 13,
+        "fn_weak": 5,
+        "fp_weak": 4,
+        "tn_weak": 32
+      }
     },
     "Gradient Boosting (GBDT)": {
       "split": "Validation",
-      "accuracy": 0.7777777777777778,
-      "macro_f1": 0.75,
-      "weighted_f1": 0.7777777777777778,
-      "roc_auc": 0.8186728395061729,
-      "pr_auc": 0.8561808587029958,
+      "weak_threshold": 0.425,
+      "accuracy": 0.8703703703703703,
+      "macro_f1": 0.8472727272727272,
+      "weighted_f1": 0.867070707070707,
+      "roc_auc": 0.7870370370370371,
+      "weak_pr_auc": 0.821074076960602,
+      "strong_pr_auc": 0.8346133710772738,
+      "false_alarm_rate": 0.05555555555555555,
+      "false_alarm_count": 2,
+      "total_weak": 18,
+      "total_strong": 36,
+      "weak_detected": 13,
+      "weak_missed": 5,
+      "strong_correct": 34,
       "weak_class_metrics": {
-        "precision": 0.6666666666666666,
-        "recall": 0.6666666666666666,
-        "f1_score": 0.6666666666666666
+        "precision": 0.8666666666666667,
+        "recall": 0.7222222222222222,
+        "f1_score": 0.7878787878787878
       },
       "strong_class_metrics": {
-        "precision": 0.8333333333333334,
-        "recall": 0.8333333333333334,
-        "f1_score": 0.8333333333333334
+        "precision": 0.8717948717948718,
+        "recall": 0.9444444444444444,
+        "f1_score": 0.9066666666666666
       },
       "confusion_matrix": [
         [
-          12,
-          6
+          13,
+          5
         ],
         [
-          6,
-          30
+          2,
+          34
         ]
-      ]
+      ],
+      "confusion_matrix_definition": {
+        "rows": [
+          "actual_weak_0",
+          "actual_strong_1"
+        ],
+        "columns": [
+          "predicted_weak_0",
+          "predicted_strong_1"
+        ],
+        "tp_weak": 13,
+        "fn_weak": 5,
+        "fp_weak": 2,
+        "tn_weak": 34
+      }
     }
   },
   "test_evaluation": {
     "split": "Test",
-    "accuracy": 0.8421052631578947,
-    "macro_f1": 0.8347826086956522,
-    "weighted_f1": 0.8390541571319603,
-    "roc_auc": 0.8674999999999999,
-    "pr_auc": 0.866948991935464,
+    "weak_threshold": 0.425,
+    "accuracy": 0.8245614035087719,
+    "macro_f1": 0.8177749360613811,
+    "weighted_f1": 0.8220935971642661,
+    "roc_auc": 0.8737499999999999,
+    "weak_pr_auc": 0.8942396539573765,
+    "strong_pr_auc": 0.8767530684315583,
+    "false_alarm_rate": 0.09375,
+    "false_alarm_count": 3,
+    "total_weak": 25,
+    "total_strong": 32,
+    "weak_detected": 18,
+    "weak_missed": 7,
+    "strong_correct": 29,
     "weak_class_metrics": {
-      "precision": 0.9,
+      "precision": 0.8571428571428571,
       "recall": 0.72,
-      "f1_score": 0.8
+      "f1_score": 0.782608695652174
     },
     "strong_class_metrics": {
-      "precision": 0.8108108108108109,
-      "recall": 0.9375,
-      "f1_score": 0.8695652173913043
+      "precision": 0.8055555555555556,
+      "recall": 0.90625,
+      "f1_score": 0.8529411764705882
     },
     "confusion_matrix": [
       [
@@ -138,61 +287,273 @@
         7
       ],
       [
-        2,
-        30
+        3,
+        29
       ]
-    ]
+    ],
+    "confusion_matrix_definition": {
+      "rows": [
+        "actual_weak_0",
+        "actual_strong_1"
+      ],
+      "columns": [
+        "predicted_weak_0",
+        "predicted_strong_1"
+      ],
+      "tp_weak": 18,
+      "fn_weak": 7,
+      "fp_weak": 3,
+      "tn_weak": 29
+    }
   },
-  "top_15_features": [
+  "top_features": [
     {
       "rank": 1,
-      "feature": "temp_diurnal_drop",
-      "importance": 0.21968213558101748
+      "feature": "temperature_change_6h",
+      "importance": 0.0863693722808786,
+      "method": "normalized_absolute_coefficient"
     },
     {
       "rank": 2,
-      "feature": "temp_cv",
-      "importance": 0.1552558507551838
+      "feature": "temp_diurnal_drop",
+      "importance": 0.06053295936472727,
+      "method": "normalized_absolute_coefficient"
     },
     {
       "rank": 3,
-      "feature": "temperature_std",
-      "importance": 0.13303981502837176
+      "feature": "temperature_std_6h",
+      "importance": 0.05097953684574191,
+      "method": "normalized_absolute_coefficient"
     },
     {
       "rank": 4,
-      "feature": "temperature_range",
-      "importance": 0.11130255766843604
+      "feature": "temperature_range_24h",
+      "importance": 0.05052045945031723,
+      "method": "normalized_absolute_coefficient"
     },
     {
       "rank": 5,
-      "feature": "temp_linear_trend",
-      "importance": 0.08067697649014176
+      "feature": "temperature_range",
+      "importance": 0.05052045945031723,
+      "method": "normalized_absolute_coefficient"
     },
     {
       "rank": 6,
-      "feature": "humidity_std",
-      "importance": 0.07605091677170438
+      "feature": "temperature_std",
+      "importance": 0.04274536761422199,
+      "method": "normalized_absolute_coefficient"
     },
     {
       "rank": 7,
-      "feature": "temperature_mean",
-      "importance": 0.07420906016238231
+      "feature": "temperature_change_24h",
+      "importance": 0.03767970862723126,
+      "method": "normalized_absolute_coefficient"
     },
     {
       "rank": 8,
-      "feature": "brood_temp_adherence",
-      "importance": 0.059397481115291396
+      "feature": "humidity_linear_trend",
+      "importance": 0.03524084518611188,
+      "method": "normalized_absolute_coefficient"
     },
     {
       "rank": 9,
-      "feature": "humidity_range",
-      "importance": 0.05776282298459482
+      "feature": "temperature_max",
+      "importance": 0.03325097909114381,
+      "method": "normalized_absolute_coefficient"
     },
     {
       "rank": 10,
+      "feature": "temperature_std_12h",
+      "importance": 0.03322411054412802,
+      "method": "normalized_absolute_coefficient"
+    },
+    {
+      "rank": 11,
+      "feature": "temp_linear_trend",
+      "importance": 0.032848735246423524,
+      "method": "normalized_absolute_coefficient"
+    },
+    {
+      "rank": 12,
+      "feature": "humidity_std",
+      "importance": 0.03271842397710685,
+      "method": "normalized_absolute_coefficient"
+    },
+    {
+      "rank": 13,
+      "feature": "temperature_mean_12h",
+      "importance": 0.03190210129382903,
+      "method": "normalized_absolute_coefficient"
+    },
+    {
+      "rank": 14,
+      "feature": "humidity_cv",
+      "importance": 0.03156689303534907,
+      "method": "normalized_absolute_coefficient"
+    },
+    {
+      "rank": 15,
+      "feature": "temperature_mean",
+      "importance": 0.030470861023341945,
+      "method": "normalized_absolute_coefficient"
+    },
+    {
+      "rank": 16,
+      "feature": "temperature_max_6h",
+      "importance": 0.029804467162357254,
+      "method": "normalized_absolute_coefficient"
+    },
+    {
+      "rank": 17,
+      "feature": "temperature_min",
+      "importance": 0.028102525478275978,
+      "method": "normalized_absolute_coefficient"
+    },
+    {
+      "rank": 18,
+      "feature": "temperature_min_6h",
+      "importance": 0.02717553748457234,
+      "method": "normalized_absolute_coefficient"
+    },
+    {
+      "rank": 19,
+      "feature": "temperature_range_12h",
+      "importance": 0.02594951979738124,
+      "method": "normalized_absolute_coefficient"
+    },
+    {
+      "rank": 20,
+      "feature": "humidity_change_24h",
+      "importance": 0.024794566504235716,
+      "method": "normalized_absolute_coefficient"
+    },
+    {
+      "rank": 21,
+      "feature": "temperature_mean_6h",
+      "importance": 0.024207876189968426,
+      "method": "normalized_absolute_coefficient"
+    },
+    {
+      "rank": 22,
+      "feature": "humidity_range_24h",
+      "importance": 0.021967059464274092,
+      "method": "normalized_absolute_coefficient"
+    },
+    {
+      "rank": 23,
+      "feature": "humidity_range",
+      "importance": 0.021967059464274092,
+      "method": "normalized_absolute_coefficient"
+    },
+    {
+      "rank": 24,
+      "feature": "humidity_change_6h",
+      "importance": 0.021166814475366297,
+      "method": "normalized_absolute_coefficient"
+    },
+    {
+      "rank": 25,
+      "feature": "humidity_min",
+      "importance": 0.020652287274816012,
+      "method": "normalized_absolute_coefficient"
+    },
+    {
+      "rank": 26,
+      "feature": "temperature_change_12h",
+      "importance": 0.017693544087434544,
+      "method": "normalized_absolute_coefficient"
+    },
+    {
+      "rank": 27,
+      "feature": "humidity_std_12h",
+      "importance": 0.013853338147522593,
+      "method": "normalized_absolute_coefficient"
+    },
+    {
+      "rank": 28,
+      "feature": "humidity_change_12h",
+      "importance": 0.011704752223637,
+      "method": "normalized_absolute_coefficient"
+    },
+    {
+      "rank": 29,
+      "feature": "brood_temp_adherence",
+      "importance": 0.010693921036347582,
+      "method": "normalized_absolute_coefficient"
+    },
+    {
+      "rank": 30,
+      "feature": "humidity_min_6h",
+      "importance": 0.009604693337285135,
+      "method": "normalized_absolute_coefficient"
+    },
+    {
+      "rank": 31,
+      "feature": "humidity_mean_6h",
+      "importance": 0.009430771931910982,
+      "method": "normalized_absolute_coefficient"
+    },
+    {
+      "rank": 32,
+      "feature": "temperature_range_6h",
+      "importance": 0.009155023876375937,
+      "method": "normalized_absolute_coefficient"
+    },
+    {
+      "rank": 33,
+      "feature": "humidity_max_6h",
+      "importance": 0.007613725883497385,
+      "method": "normalized_absolute_coefficient"
+    },
+    {
+      "rank": 34,
+      "feature": "temp_cv",
+      "importance": 0.007306655321452876,
+      "method": "normalized_absolute_coefficient"
+    },
+    {
+      "rank": 35,
+      "feature": "humidity_range_12h",
+      "importance": 0.006558951850657356,
+      "method": "normalized_absolute_coefficient"
+    },
+    {
+      "rank": 36,
+      "feature": "humidity_max",
+      "importance": 0.002496119788250564,
+      "method": "normalized_absolute_coefficient"
+    },
+    {
+      "rank": 37,
       "feature": "humidity_mean",
-      "importance": 0.03262238344287634
+      "importance": 0.002423893273390611,
+      "method": "normalized_absolute_coefficient"
+    },
+    {
+      "rank": 38,
+      "feature": "humidity_mean_12h",
+      "importance": 0.001940304495838343,
+      "method": "normalized_absolute_coefficient"
+    },
+    {
+      "rank": 39,
+      "feature": "humidity_range_6h",
+      "importance": 0.0018620953447074013,
+      "method": "normalized_absolute_coefficient"
+    },
+    {
+      "rank": 40,
+      "feature": "humidity_std_6h",
+      "importance": 0.0013036830753006773,
+      "method": "normalized_absolute_coefficient"
     }
+  ],
+  "evaluation_notes": [
+    "Model selection used validation metrics only.",
+    "Test metrics are reported for the selected champion.",
+    "Weak PR-AUC treats Weak (class 0) as the positive class.",
+    "False Alarm Rate is the proportion of actual Strong samples predicted Weak.",
+    "Confusion matrix rows are actual classes [Weak, Strong].",
+    "Confusion matrix columns are predicted classes [Weak, Strong]."
   ]
 }

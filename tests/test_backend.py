@@ -4,8 +4,8 @@ import pytest
 from fastapi.testclient import TestClient
 from sqlalchemy.orm import Session
 
-from src.models import HiveTelemetry, HiveAudioRecord, HiveAudioFeature, HivePrediction, HiveDeviceAssignment
-from src.audio_processing import DB_BAND_COLUMNS
+from src.shared.models import HiveTelemetry, HiveAudioRecord, HiveAudioFeature, HivePrediction, HiveDeviceAssignment
+from src.shared.audio_processing import DB_BAND_COLUMNS
 
 
 def test_health_check(client: TestClient):
@@ -15,7 +15,9 @@ def test_health_check(client: TestClient):
     assert data["status"] == "online"
     assert data["database_connected"] is True
     assert data["model_loaded"] is True
-    assert data["model_feature_count"] == 10
+    assert data["classifier_loaded"] is True
+    assert data["regressor_loaded"] is True
+    assert data["model_feature_count"] == 40
 
 
 def test_auth_registration_and_login(client: TestClient):
@@ -358,11 +360,15 @@ def test_prediction_pending_then_generated(
     assert 0.0 <= pred_data["weak_probability"] <= 1.0
     assert 0.0 <= pred_data["strong_probability"] <= 1.0
     assert pred_data["alert_level"] in ["GREEN", "YELLOW", "RED_ALERT"]
+    assert pred_data["predicted_frame_count"] is not None
+    assert isinstance(pred_data["predicted_frame_count"], (int, float))
+    assert 0.0 <= pred_data["predicted_frame_count"] <= 32.0
 
     # Calling again immediately without new telemetry -> prediction_status: "previous"
     pred_res3 = client.get(f"/api/v1/hives/{hive_id}/prediction", headers=auth_headers)
     assert pred_res3.status_code == 200
     assert pred_res3.json()["prediction_status"] == "previous"
+    assert pred_res3.json()["predicted_frame_count"] == pred_data["predicted_frame_count"]
 
 
 def test_history_pagination(
@@ -405,7 +411,7 @@ def test_history_pagination(
 
 def test_sensor_data_payload_schema_environmental_only():
     """Verify SensorDataPayload schema contains only environmental fields."""
-    from src.schemas import SensorDataPayload
+    from src.shared.schemas import SensorDataPayload
 
     field_names = set(SensorDataPayload.model_fields.keys())
     assert field_names == {"published_at", "temperature", "humidity"}
@@ -609,5 +615,86 @@ def test_telemetry_and_audio_complete_independence(
     # Verify telemetry count did not increase
     telem_count = db_session.query(HiveTelemetry).filter(HiveTelemetry.hive_id == hive_id).count()
     assert telem_count == 1
+
+
+def test_frame_count_regressor_unit():
+    """Verify frame count regressor loads properly and generates bounded continuous frame predictions."""
+    import joblib
+    import numpy as np
+    import pandas as pd
+    from src.shared.config import settings
+    from src.prediction.service import FEATURE_NAMES
+    from src.shared.feature_extraction import compute_24h_environmental_features
+    from src.frame_regressor.model import ClippedRegressor  # noqa: F401
+
+    reg_path = settings.MSPB2_ARTIFACTS_DIR / "frame_count_regressor.joblib"
+    assert reg_path.exists(), "frame_count_regressor.joblib must exist in artifacts"
+
+    regressor = joblib.load(reg_path)
+    assert hasattr(regressor, "predict")
+
+    # Synthetic strong hive: high temperature stability (brood core ~ 34.8C, low variance)
+    times = pd.date_range("2021-06-16 00:00:00", periods=96, freq="15min", tz="UTC")
+    df_strong_raw = pd.DataFrame({
+        "published_at": times,
+        "temperature": 34.8 + np.sin(np.linspace(0, 2 * np.pi, 96)) * 0.3,
+        "humidity": 52.0 + np.cos(np.linspace(0, 2 * np.pi, 96)) * 1.0,
+    })
+    strong_features = compute_24h_environmental_features(df_strong_raw, "published_at")
+    df_strong = pd.DataFrame([[strong_features[f] for f in FEATURE_NAMES]], columns=FEATURE_NAMES)
+    pred_strong = float(regressor.predict(df_strong)[0])
+    assert 0.0 <= pred_strong <= 32.0
+
+    # Synthetic weak hive: low temperature stability (unregulated ~ 24.0C, large diurnal variance)
+    df_weak_raw = pd.DataFrame({
+        "published_at": times,
+        "temperature": 24.0 + np.sin(np.linspace(0, 2 * np.pi, 96)) * 6.0,
+        "humidity": 70.0 + np.cos(np.linspace(0, 2 * np.pi, 96)) * 15.0,
+    })
+    weak_features = compute_24h_environmental_features(df_weak_raw, "published_at")
+    df_weak = pd.DataFrame([[weak_features[f] for f in FEATURE_NAMES]], columns=FEATURE_NAMES)
+    pred_weak = float(regressor.predict(df_weak)[0])
+    assert 0.0 <= pred_weak <= 32.0
+
+    # Strong colony should have significantly higher predicted frames than weak colony
+    assert pred_strong > pred_weak, f"Strong hive ({pred_strong}f) should have higher frame count than weak ({pred_weak}f)"
+
+
+def test_modular_folder_structure_imports():
+    """Verify that all new modular subpackages resolve correctly."""
+    # 1. Shared folder imports
+    from src.shared.config import settings as shared_settings
+    from src.shared.models import Hive as SharedHive, HivePrediction as SharedPrediction
+    from src.shared.schemas import PredictionResponse as SharedPredResponse
+    from src.shared.database import get_db as shared_get_db
+    from src.shared.dataset import load_datasets as shared_load_datasets, ENVIRONMENTAL_FEATURES as shared_env_feats
+
+    # 2. Classifier and Regressor folders (both containing model.py and train.py)
+    from src.strength_classifier.model import (
+        ColonyStrengthClassifier,
+        build_classifier_pipeline,
+    )
+    from src.strength_classifier.train import evaluate_model as evaluate_classifier
+    from src.frame_regressor.model import ClippedRegressor as FrameClippedRegressor
+    from src.frame_regressor.train import evaluate_regressor as evaluate_frame_regressor
+
+    # 3. Prediction service and API routes
+    from src.prediction.service import generate_hive_prediction as modular_generate_pred
+    from src.api.routes import app as modular_app
+    from src.api import app as api_package_app
+
+    assert shared_settings.API_TITLE is not None
+    assert SharedHive is not None
+    assert modular_app is api_package_app
+    assert len(shared_env_feats) == 40
+    assert callable(shared_load_datasets)
+    assert callable(build_classifier_pipeline)
+    assert ColonyStrengthClassifier is not None
+    assert callable(evaluate_classifier)
+    assert callable(evaluate_frame_regressor)
+    assert FrameClippedRegressor is not None
+    assert callable(modular_generate_pred)
+
+
 
 

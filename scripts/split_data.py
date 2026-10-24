@@ -1,5 +1,5 @@
 """
-split_data.py
+scripts/split_data.py
 Splits the 75-feature labeled dataset strictly by unique physical hive ID into
 Training, Validation, and Test sets.
 Enforces and programmatically asserts ZERO hive overlap across splits.
@@ -7,14 +7,19 @@ Outputs data/train.csv, data/val.csv, data/test.csv, and data/splits.json.
 """
 
 import json
+import sys
 from pathlib import Path
 from typing import Dict, List, Set, Any
 import numpy as np
 import pandas as pd
 from sklearn.model_selection import train_test_split
 
-BASE_DIR = Path("/Users/aayushghimire/Datasets/MSPB2")
-DATA_DIR = BASE_DIR / "data"
+BASE_DIR = Path(__file__).resolve().parent.parent
+sys.path.insert(0, str(BASE_DIR))
+
+from src.shared.config import settings
+
+DATA_DIR = settings.MSPB2_BASE_DIR / "data"
 
 
 def split_dataset_by_hive(
@@ -51,7 +56,6 @@ def split_dataset_by_hive(
     print(f"Total physical hives to partition: {len(all_unique_hives)}")
 
     # 2. Stratified split of hives into Train+Val vs Test
-    # Test gets exactly test_size (~15% of hives)
     train_val_hives_df, test_hives_df = train_test_split(
         df_hives,
         test_size=test_size,
@@ -60,7 +64,6 @@ def split_dataset_by_hive(
     )
 
     # 3. Stratified split of Train+Val into Train vs Val
-    # Val gets val_size / (1 - test_size)
     relative_val_size = val_size / (1.0 - test_size)
     train_hives_df, val_hives_df = train_test_split(
         train_val_hives_df,

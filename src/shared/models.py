@@ -18,7 +18,7 @@ from sqlalchemy import (
 )
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-from src.database import Base
+from src.shared.database import Base
 
 
 def get_utc_now():
@@ -273,6 +273,7 @@ class HivePrediction(Base):
     weak_probability: Mapped[float] = mapped_column(Float, nullable=False)
     strong_probability: Mapped[float] = mapped_column(Float, nullable=False)
     alert_level: Mapped[str] = mapped_column(String(20), nullable=False) # "GREEN" | "YELLOW" | "RED_ALERT"
+    predicted_frame_count: Mapped[Optional[float]] = mapped_column(Float, nullable=True) # Continuous frame count prediction
     window_start: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
     window_end: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
     last_reading_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)

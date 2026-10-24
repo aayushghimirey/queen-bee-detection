@@ -3,7 +3,7 @@ from pathlib import Path
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
-ROOT_DIR = Path(__file__).resolve().parent.parent
+ROOT_DIR = Path(__file__).resolve().parent.parent.parent
 ENV_FILE = ROOT_DIR / ".env"
 
 
@@ -23,9 +23,9 @@ class Settings(BaseSettings):
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 1440  # 24 hours
 
     # Paths & Storage
-    MSPB2_BASE_DIR: Path = Path(__file__).resolve().parent.parent
-    MSPB2_AUDIO_DIR: Path = Path(__file__).resolve().parent.parent / "audio"
-    MSPB2_ARTIFACTS_DIR: Path = Path(__file__).resolve().parent.parent / "artifacts"
+    MSPB2_BASE_DIR: Path = ROOT_DIR
+    MSPB2_AUDIO_DIR: Path = ROOT_DIR / "audio"
+    MSPB2_ARTIFACTS_DIR: Path = ROOT_DIR / "artifacts"
 
     # API Metadata
     API_TITLE: str = "MSPB2 Beehive Monitoring & Colony Strength API"
@@ -42,8 +42,10 @@ class Settings(BaseSettings):
 
 settings = Settings()
 
-# Ensure directories exist with fallback for local host execution
-LOCAL_ROOT = Path(__file__).resolve().parent.parent
+LOCAL_ROOT = ROOT_DIR
+
+if not (settings.MSPB2_BASE_DIR / "data").exists():
+    settings.MSPB2_BASE_DIR = LOCAL_ROOT
 
 try:
     settings.MSPB2_AUDIO_DIR.mkdir(parents=True, exist_ok=True)

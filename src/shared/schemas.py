@@ -220,6 +220,9 @@ class PredictionResponse(BaseModel):
     weak_probability: Optional[float] = None
     strong_probability: Optional[float] = None
     alert_level: Optional[str] = None
+    predicted_frame_count: Optional[float] = Field(
+        None, description="Continuous estimated colony size in occupied frames (e.g. 17.5)"
+    )
     window_start: Optional[datetime] = None
     window_end: Optional[datetime] = None
     predicted_at: Optional[datetime] = None

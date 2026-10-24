@@ -9,9 +9,13 @@ import pandas as pd
 from sqlalchemy.orm import Session
 from sqlalchemy import select
 
-from src.config import settings
-from src.models import Hive, HiveTelemetry, HivePrediction
-from src.feature_extraction import compute_24h_environmental_features, ENVIRONMENTAL_FEATURES
+from src.shared.config import settings
+from src.shared.models import Hive, HiveTelemetry, HivePrediction
+from src.shared.feature_extraction import (
+    compute_24h_environmental_features,
+    ENVIRONMENTAL_FEATURES,
+)
+from src.frame_regressor.model import ClippedRegressor  # Needed for unpickling
 
 # ============================================================
 # CONCURRENCY LOCK PER HIVE
@@ -30,20 +34,31 @@ def get_hive_lock(hive_id: str) -> Lock:
 # ============================================================
 # MODEL & FEATURE SCHEMA LOADING
 # ============================================================
-MODEL_PATH = settings.MSPB2_ARTIFACTS_DIR / "colony_strength_model.joblib"
+CLASSIFICATION_MODEL_PATH = settings.MSPB2_ARTIFACTS_DIR / "colony_strength_model.joblib"
+REGRESSION_MODEL_PATH = settings.MSPB2_ARTIFACTS_DIR / "frame_count_regressor.joblib"
 FEATURE_NAMES_PATH = settings.MSPB2_ARTIFACTS_DIR / "feature_names.json"
 
-if not MODEL_PATH.exists():
-    raise RuntimeError(f"Trained model not found at {MODEL_PATH}")
+if not CLASSIFICATION_MODEL_PATH.exists():
+    raise RuntimeError(f"Trained classification model not found at {CLASSIFICATION_MODEL_PATH}")
 
 if not FEATURE_NAMES_PATH.exists():
     raise RuntimeError(f"Feature schema not found at {FEATURE_NAMES_PATH}")
 
-model = joblib.load(MODEL_PATH)
+classification_model = joblib.load(CLASSIFICATION_MODEL_PATH)
+model = classification_model  # Alias for backward compatibility
+
+regressor_model = None
+if REGRESSION_MODEL_PATH.exists():
+    try:
+        regressor_model = joblib.load(REGRESSION_MODEL_PATH)
+    except Exception as exc:
+        print(f"[WARN] Failed to load frame count regressor from {REGRESSION_MODEL_PATH}: {exc}")
+        regressor_model = None
+
 FEATURE_NAMES = json.loads(FEATURE_NAMES_PATH.read_text())
 
-if len(FEATURE_NAMES) != 10:
-    raise RuntimeError(f"Expected 10 environmental feature names; got {len(FEATURE_NAMES)}")
+if len(FEATURE_NAMES) != 40:
+    raise RuntimeError(f"Expected 40 environmental feature names; got {len(FEATURE_NAMES)}")
 
 
 # ============================================================
@@ -63,15 +78,14 @@ def generate_hive_prediction(db: Session, hive_id: str) -> Dict[str, Any]:
     """
     On-demand prediction logic:
     1. Checks if prediction is due or new telemetry is available.
-    2. Builds 24-hour window from PostgreSQL.
-    3. Computes 75 engineered physical features.
-    4. Executes calibrated Random Forest model.
-    5. Persists prediction history.
+    2. Builds 24-hour window from database.
+    3. Computes 40 physical environmental microclimate features.
+    4. Executes both Binary Classifier and Continuous Frame Count Regressor.
+    5. Persists unified prediction history.
     """
     with get_hive_lock(hive_id):
         previous = get_latest_prediction(db, hive_id)
 
-        # Get the latest telemetry reading timestamp
         latest_reading = (
             db.query(HiveTelemetry)
             .filter(HiveTelemetry.hive_id == hive_id)
@@ -112,10 +126,8 @@ def generate_hive_prediction(db: Session, hive_id: str) -> Dict[str, Any]:
         if not (prediction_due and new_data_available):
             return _format_prediction_result(previous, "previous")
 
-        # Telemetry window: [latest_dt - 24 hours, latest_dt]
         window_start = latest_dt - timedelta(hours=settings.WINDOW_HOURS)
 
-        # Query readings in the window
         readings = (
             db.query(HiveTelemetry)
             .filter(
@@ -139,7 +151,6 @@ def generate_hive_prediction(db: Session, hive_id: str) -> Dict[str, Any]:
                 "message": "No telemetry readings available in the 24-hour window.",
             }
 
-        # Validate minimum readings and temporal span
         earliest_dt = readings[0].published_at
         if earliest_dt.tzinfo is None:
             earliest_dt = earliest_dt.replace(tzinfo=timezone.utc)
@@ -162,7 +173,6 @@ def generate_hive_prediction(db: Session, hive_id: str) -> Dict[str, Any]:
                 "message": err_msg,
             }
 
-        # Build DataFrame for environmental feature extraction
         rows = []
         for r in readings:
             rows.append({
@@ -188,30 +198,37 @@ def generate_hive_prediction(db: Session, hive_id: str) -> Dict[str, Any]:
                 "message": f"Feature computation error: {exc}",
             }
 
-        # Check for missing model features
         missing = [f for f in FEATURE_NAMES if f not in feats]
         if missing:
             raise ValueError(f"Extracted features missing expected model inputs: {missing[:5]}")
 
-        # Assemble feature vector in exact training order
         feature_vector = np.array([float(feats[name]) for name in FEATURE_NAMES], dtype=np.float64)
         X = pd.DataFrame([feature_vector], columns=FEATURE_NAMES)
 
-        # Inference
-        label = int(model.predict(X)[0])
-        probabilities = model.predict_proba(X)[0]
-        class_probs = {int(c): float(p) for c, p in zip(model.classes_, probabilities)}
+        # 1. Classification Inference
+        label = int(classification_model.predict(X)[0])
+        probabilities = classification_model.predict_proba(X)[0]
+        class_probs = {int(c): float(p) for c, p in zip(classification_model.classes_, probabilities)}
 
         p_weak = class_probs.get(0, 0.0)
         p_strong = class_probs.get(1, 0.0)
 
-        # Alert level definition
         if p_weak >= 0.70:
             alert = "RED_ALERT"
-        elif p_weak >= 0.40:
+        elif p_weak >= 0.30:
             alert = "YELLOW"
         else:
             alert = "GREEN"
+
+        # 2. Continuous Frame Count Regression Inference
+        pred_frames = None
+        if regressor_model is not None:
+            try:
+                raw_frames = float(regressor_model.predict(X)[0])
+                pred_frames = float(np.round(np.clip(raw_frames, 0.0, 32.0), 1))
+            except Exception as exc:
+                print(f"[WARN] Frame count regression failed: {exc}")
+                pred_frames = None
 
         # Persist new prediction record
         prediction_record = HivePrediction(
@@ -221,6 +238,7 @@ def generate_hive_prediction(db: Session, hive_id: str) -> Dict[str, Any]:
             weak_probability=round(p_weak, 4),
             strong_probability=round(p_strong, 4),
             alert_level=alert,
+            predicted_frame_count=pred_frames,
             window_start=window_start,
             window_end=latest_dt,
             last_reading_at=latest_dt,
@@ -242,6 +260,7 @@ def _format_prediction_result(record: HivePrediction, status: str) -> Dict[str, 
         "weak_probability": record.weak_probability,
         "strong_probability": record.strong_probability,
         "alert_level": record.alert_level,
+        "predicted_frame_count": record.predicted_frame_count,
         "window_start": record.window_start,
         "window_end": record.window_end,
         "predicted_at": record.predicted_at,

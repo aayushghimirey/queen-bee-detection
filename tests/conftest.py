@@ -9,11 +9,11 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, Session
 from sqlalchemy.pool import StaticPool
 
-from src.database import Base, get_db
-from src.api import app
-from src.config import settings
-from src.security import hash_password, hash_api_key
-from src.models import User, Hive, IoTDevice, HiveDeviceAssignment
+from src.shared.database import Base, get_db
+from src.api.routes import app
+from src.shared.config import settings
+from src.shared.security import hash_password, hash_api_key
+from src.shared.models import User, Hive, IoTDevice, HiveDeviceAssignment
 
 # Use an in-memory SQLite database with StaticPool for thread-safe test isolation
 SQLALCHEMY_DATABASE_URL = "sqlite:///:memory:"

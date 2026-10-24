@@ -14,10 +14,15 @@ import io
 import json
 import numpy as np
 from scipy.io import wavfile
-from fastapi.testclient import TestClient
+import sys
+from pathlib import Path
 
-from src.api import app
-from src.database import Base, engine
+# Add project root to sys.path
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
+
+from fastapi.testclient import TestClient
+from src.api.routes import app
+from src.shared.database import Base, engine
 
 
 def generate_synthetic_wav(freq: float = 213.62, duration: float = 1.0) -> bytes:
@@ -35,8 +40,29 @@ def run_demo():
     print("MSPB2 HONEY BEE API DEMONSTRATION")
     print("=" * 70)
 
-    # Initialize tables
-    Base.metadata.create_all(bind=engine)
+    # Initialize tables with graceful fallback if PostgreSQL container is offline
+    try:
+        Base.metadata.create_all(bind=engine)
+    except Exception as exc:
+        print(f"[NOTE] Default DB unavailable ({type(exc).__name__}). Using local SQLite for demo run...")
+        from sqlalchemy import create_engine
+        from sqlalchemy.orm import sessionmaker
+        from src.shared.database import get_db
+
+        demo_db_path = Path(__file__).resolve().parent.parent / "demo.db"
+        sqlite_engine = create_engine(f"sqlite:///{demo_db_path}", connect_args={"check_same_thread": False})
+        Base.metadata.create_all(bind=sqlite_engine)
+        DemoSession = sessionmaker(autocommit=False, autoflush=False, bind=sqlite_engine)
+
+        def override_get_db():
+            db = DemoSession()
+            try:
+                yield db
+            finally:
+                db.close()
+
+        app.dependency_overrides[get_db] = override_get_db
+
     client = TestClient(app)
 
     # 1. Health Check
@@ -150,7 +176,8 @@ def run_demo():
     print(f"Total history records: {hist_data['total_items']}")
     if hist_data["items"]:
         latest = hist_data["items"][0]
-        print(f"Latest reading: T={latest['temperature']}°C, RH={latest['humidity']}%, Audio bands={list(latest['audio_features'].keys())[:4]}...")
+        audio_b = list(latest['audio_features'].keys())[:4] if latest.get('audio_features') else 'Environmental Only'
+        print(f"Latest reading: T={latest['temperature']}°C, RH={latest['humidity']}%, Audio bands={audio_b}...")
 
     # 9. Query On-Demand Prediction
     print(f"\n[Step 9] Beekeeper requesting Colony Strength ML Prediction...")

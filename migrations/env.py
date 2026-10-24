@@ -6,8 +6,8 @@ import sys
 from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
-from src.database import Base
-from src.models import (
+from src.shared.database import Base
+from src.shared.models import (
     User,
     Hive,
     IoTDevice,
@@ -16,7 +16,7 @@ from src.models import (
     HiveAudioFeature,
     HivePrediction,
 )
-from src.config import settings
+from src.shared.config import settings
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.

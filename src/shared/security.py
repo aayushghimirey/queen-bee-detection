@@ -10,9 +10,9 @@ from fastapi.security import OAuth2PasswordBearer
 from jose import JWTError, jwt
 from sqlalchemy.orm import Session
 
-from src.config import settings
-from src.database import get_db
-from src.models import IoTDevice, User
+from src.shared.config import settings
+from src.shared.database import get_db
+from src.shared.models import IoTDevice, User
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/v1/auth/token", auto_error=False)
 

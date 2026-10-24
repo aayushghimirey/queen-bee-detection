@@ -24,15 +24,15 @@ from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy import desc, func, select
 from sqlalchemy.orm import Session
 
-from src.audio_processing import (
+from src.shared.audio_processing import (
     DB_BAND_COLUMNS,
     FREQ_BAND_MAPPING,
     extract_audio_features,
     validate_wav_header,
 )
-from src.config import settings
-from src.database import get_db
-from src.models import (
+from src.shared.config import settings
+from src.shared.database import get_db
+from src.shared.models import (
     Hive,
     HiveAudioRecord,
     HiveAudioFeature,
@@ -42,13 +42,15 @@ from src.models import (
     IoTDevice,
     User,
 )
-from src.prediction_service import (
+from src.prediction.service import (
     FEATURE_NAMES,
     generate_hive_prediction,
     get_latest_prediction,
     model,
+    classification_model,
+    regressor_model,
 )
-from src.schemas import (
+from src.shared.schemas import (
     AudioDataPayload,
     AudioHistoryResponse,
     AudioRecordResponse,
@@ -70,7 +72,7 @@ from src.schemas import (
     UserRegister,
     UserResponse,
 )
-from src.security import (
+from src.shared.security import (
     create_access_token,
     generate_device_api_key,
     get_authenticated_device,
@@ -944,7 +946,9 @@ def health_check(db: Session = Depends(get_db)):
     return {
         "status": "online" if db_ok else "degraded",
         "database_connected": db_ok,
-        "model_loaded": model is not None,
+        "model_loaded": classification_model is not None,
+        "classifier_loaded": classification_model is not None,
+        "regressor_loaded": regressor_model is not None,
         "model_feature_count": len(FEATURE_NAMES),
         "artifacts_dir": str(settings.MSPB2_ARTIFACTS_DIR),
         "audio_dir": str(settings.MSPB2_AUDIO_DIR),

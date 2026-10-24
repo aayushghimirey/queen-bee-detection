@@ -1,8 +1,8 @@
 """
-data_prep.py
+scripts/data_prep.py
 Builds the unified labeled dataset for Honey Bee Colony Strength classification.
 Pairs ground-truth inspection records with preceding 24-hour sensor windows,
-computes 10 environmental microclimate features, and outputs data/labeled_dataset.csv.
+computes 40 environmental microclimate features, and outputs data/labeled_dataset.csv.
 """
 
 import os
@@ -12,17 +12,18 @@ from typing import List, Dict, Any, Tuple
 import numpy as np
 import pandas as pd
 
-# Add src to python path
-SRC_DIR = Path(__file__).resolve().parent
-sys.path.append(str(SRC_DIR))
-from feature_extraction import (
+# Add project root to python path
+BASE_DIR = Path(__file__).resolve().parent.parent
+sys.path.insert(0, str(BASE_DIR))
+
+from src.shared.feature_extraction import (
     compute_24h_environmental_features,
     ENVIRONMENTAL_FEATURES,
 )
+from src.shared.config import settings
 
-BASE_DIR = Path("/Users/aayushghimire/Datasets/MSPB2")
-DATASET_DIR = BASE_DIR / "dataset"
-DATA_OUT_DIR = BASE_DIR / "data"
+DATASET_DIR = settings.MSPB2_BASE_DIR / "dataset"
+DATA_OUT_DIR = settings.MSPB2_BASE_DIR / "data"
 DATA_OUT_DIR.mkdir(parents=True, exist_ok=True)
 
 
@@ -30,7 +31,7 @@ def _find_dataset_path(rel_path: str) -> Path:
     p = DATASET_DIR / rel_path
     if p.exists():
         return p
-    return BASE_DIR / rel_path
+    return settings.MSPB2_BASE_DIR / rel_path
 
 
 def parse_d3_inspections() -> Tuple[pd.DataFrame, Dict[str, Any]]:
@@ -183,13 +184,17 @@ def parse_d5_d6_inspections() -> Tuple[pd.DataFrame, Dict[str, Any]]:
 def match_windows_and_extract_features(
     df_sensor: pd.DataFrame,
     df_inspections: pd.DataFrame,
-    min_readings: int = 30
+    min_readings: int = 30,
+    window_hours: int = 24,
 ) -> pd.DataFrame:
     """
-    For each inspection event, extracts sensor records in [cutoff - 24h, cutoff],
-    computes 10 environmental features, and pairs with ground-truth label.
+    For each inspection event, extracts sensor records in
+    [cutoff - window_hours, cutoff], computes environmental features, and pairs
+    them with the ground-truth label.
     """
-    print(f"Aligning {len(df_inspections)} inspections against {len(df_sensor):,} sensor readings...")
+    if window_hours <= 0:
+        raise ValueError("window_hours must be positive")
+    print(f"Aligning {len(df_inspections)} inspections against {len(df_sensor):,} sensor readings using {window_hours}h windows...")
     
     # Ensure datetime with UTC timezone
     if not pd.api.types.is_datetime64_any_dtype(df_sensor['published_at']):
@@ -205,14 +210,14 @@ def match_windows_and_extract_features(
     for idx, insp in df_inspections.iterrows():
         tag = insp['sensor_tag']
         cutoff = insp['cutoff_time']
-        start_time = cutoff - pd.Timedelta(hours=24)
+        start_time = cutoff - pd.Timedelta(hours=window_hours)
 
         tag_df = sensor_by_tag.get(tag)
         if tag_df is None or len(tag_df) == 0:
             skipped_coverage += 1
             continue
 
-        # Strictly preceding 24 hours: [cutoff - 24h, cutoff]
+        # Strictly preceding window: [cutoff - window_hours, cutoff]
         mask = (tag_df['published_at'] >= start_time) & (tag_df['published_at'] <= cutoff)
         window_df = tag_df.loc[mask]
 
@@ -242,7 +247,7 @@ def match_windows_and_extract_features(
         labeled_rows.append(sample_row)
 
     df_result = pd.DataFrame(labeled_rows)
-    print(f"Extraction complete: Created {len(df_result)} valid 24h labeled samples (skipped {skipped_coverage} with <{min_readings} readings).")
+    print(f"Extraction complete: Created {len(df_result)} valid {window_hours}h labeled samples (skipped {skipped_coverage} with <{min_readings} readings).")
     return df_result
 
 
@@ -307,9 +312,9 @@ def main():
         name = "Strong (>= 16 frames)" if lbl == 1 else "Weak (< 16 frames)"
         print(f"  Class {lbl} ({name}): {c} samples ({p*100:.1f}%)")
 
-    # Verify 10 environmental features are present
+    # Verify 40 environmental features are present
     missing_feats = [f for f in ENVIRONMENTAL_FEATURES if f not in df_combined.columns]
-    print(f"\nFeature verification: 10 environmental features expected, {len(ENVIRONMENTAL_FEATURES) - len(missing_feats)}/10 present.")
+    print(f"\nFeature verification: 40 environmental features expected, {len(ENVIRONMENTAL_FEATURES) - len(missing_feats)}/40 present.")
     if missing_feats:
         print(f"Warning: Missing features: {missing_feats}")
 

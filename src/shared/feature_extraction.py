@@ -204,16 +204,49 @@ def compute_24h_features(
 
 
 ENVIRONMENTAL_FEATURES: List[str] = [
+    # 1. Temperature features — 15
     "temperature_mean",
     "temperature_std",
+    "temperature_min",
+    "temperature_max",
     "temperature_range",
-    "humidity_mean",
-    "humidity_std",
-    "humidity_range",
     "temp_cv",
-    "brood_temp_adherence",
     "temp_diurnal_drop",
     "temp_linear_trend",
+    "temperature_mean_6h",
+    "temperature_mean_12h",
+    "temperature_std_6h",
+    "temperature_std_12h",
+    "temperature_min_6h",
+    "temperature_max_6h",
+    "brood_temp_adherence",
+    # 2. Humidity features — 13
+    "humidity_mean",
+    "humidity_std",
+    "humidity_min",
+    "humidity_max",
+    "humidity_range",
+    "humidity_cv",
+    "humidity_linear_trend",
+    "humidity_mean_6h",
+    "humidity_mean_12h",
+    "humidity_std_6h",
+    "humidity_std_12h",
+    "humidity_min_6h",
+    "humidity_max_6h",
+    # 3. Additional time-window features — 12
+    "temperature_change_6h",
+    "temperature_change_12h",
+    "temperature_change_24h",
+    "temperature_range_6h",
+    "temperature_range_12h",
+    "temperature_range_24h",
+    "humidity_change_6h",
+    "humidity_change_12h",
+    "humidity_change_24h",
+    "humidity_range_6h",
+    "humidity_range_12h",
+    "humidity_range_24h",
 ]
 
 
@@ -221,67 +254,83 @@ def compute_24h_environmental_features(
     window_df: pd.DataFrame, time_col: str = "published_at"
 ) -> Dict[str, float]:
     """
-    Computes exactly the 10 microclimate environmental features from a 24-hour sliding window.
-    Strictly temperature and humidity based, requiring zero acoustic computation.
+    Computes exactly the 40 microclimate environmental features from a 24-hour sliding window.
+    Strictly temperature and humidity based across 24h, 12h, and 6h horizons.
     """
     if len(window_df) == 0:
         raise ValueError("Cannot extract features from an empty 24-hour window.")
 
     features: Dict[str, float] = {}
+    df = window_df.copy()
 
-    for col in ["temperature", "humidity"]:
-        if col in window_df.columns:
-            s = pd.to_numeric(window_df[col], errors="coerce").dropna()
-            if len(s) > 0:
-                features[f"{col}_mean"] = float(s.mean())
-                features[f"{col}_std"] = float(s.std(ddof=1)) if len(s) > 1 else 0.0
-                features[f"{col}_range"] = float(s.max() - s.min())
-            else:
-                (
-                    features[f"{col}_mean"],
-                    features[f"{col}_std"],
-                    features[f"{col}_range"],
-                ) = (0.0, 0.0, 0.0)
-        else:
-            (
-                features[f"{col}_mean"],
-                features[f"{col}_std"],
-                features[f"{col}_range"],
-            ) = (0.0, 0.0, 0.0)
+    has_time = False
+    if time_col in df.columns:
+        try:
+            df[time_col] = pd.to_datetime(df[time_col])
+            df = df.sort_values(by=time_col)
+            has_time = True
+        except Exception:
+            has_time = False
 
-    t_mean = features["temperature_mean"]
-    t_std = features["temperature_std"]
+    # 1. Full 24-hour Temperature series
     temp_s = (
-        pd.to_numeric(window_df["temperature"], errors="coerce").dropna()
-        if "temperature" in window_df.columns
+        pd.to_numeric(df["temperature"], errors="coerce").dropna()
+        if "temperature" in df.columns
         else pd.Series([], dtype=float)
     )
+    if len(temp_s) > 0:
+        t_mean = float(temp_s.mean())
+        t_std = float(temp_s.std(ddof=1)) if len(temp_s) > 1 else 0.0
+        t_min = float(temp_s.min())
+        t_max = float(temp_s.max())
+        t_range = float(t_max - t_min)
+    else:
+        t_mean, t_std, t_min, t_max, t_range = 0.0, 0.0, 0.0, 0.0, 0.0
 
-    # 1. Temperature Coefficient of Variation (thermal stability)
+    features["temperature_mean"] = t_mean
+    features["temperature_std"] = t_std
+    features["temperature_min"] = t_min
+    features["temperature_max"] = t_max
+    features["temperature_range"] = t_range
     features["temp_cv"] = float(t_std / (abs(t_mean) + 1e-5))
-
-    # 2. Brood Core Adherence (|mean_T - 34.5°C|)
     features["brood_temp_adherence"] = float(abs(t_mean - 34.5))
 
-    # 3. Day vs. Night Temperature Drop
-    if time_col in window_df.columns:
-        dt = pd.to_datetime(window_df[time_col])
-        day_mask = (dt.dt.hour >= 10) & (dt.dt.hour < 24)
+    # 2. Full 24-hour Humidity series
+    hum_s = (
+        pd.to_numeric(df["humidity"], errors="coerce").dropna()
+        if "humidity" in df.columns
+        else pd.Series([], dtype=float)
+    )
+    if len(hum_s) > 0:
+        h_mean = float(hum_s.mean())
+        h_std = float(hum_s.std(ddof=1)) if len(hum_s) > 1 else 0.0
+        h_min = float(hum_s.min())
+        h_max = float(hum_s.max())
+        h_range = float(h_max - h_min)
+    else:
+        h_mean, h_std, h_min, h_max, h_range = 0.0, 0.0, 0.0, 0.0, 0.0
+
+    features["humidity_mean"] = h_mean
+    features["humidity_std"] = h_std
+    features["humidity_min"] = h_min
+    features["humidity_max"] = h_max
+    features["humidity_range"] = h_range
+    features["humidity_cv"] = float(h_std / (abs(h_mean) + 1e-5))
+
+    # 3. Diurnal drop & Linear Trends
+    if has_time:
+        day_mask = (df[time_col].dt.hour >= 10) & (df[time_col].dt.hour < 24)
         night_mask = ~day_mask
 
         day_temp = (
-            pd.to_numeric(
-                window_df.loc[day_mask, "temperature"], errors="coerce"
-            ).dropna()
-            if "temperature" in window_df.columns
-            else []
+            pd.to_numeric(df.loc[day_mask, "temperature"], errors="coerce").dropna()
+            if "temperature" in df.columns
+            else pd.Series([], dtype=float)
         )
         night_temp = (
-            pd.to_numeric(
-                window_df.loc[night_mask, "temperature"], errors="coerce"
-            ).dropna()
-            if "temperature" in window_df.columns
-            else []
+            pd.to_numeric(df.loc[night_mask, "temperature"], errors="coerce").dropna()
+            if "temperature" in df.columns
+            else pd.Series([], dtype=float)
         )
 
         if len(day_temp) > 0 and len(night_temp) > 0:
@@ -289,9 +338,8 @@ def compute_24h_environmental_features(
         else:
             features["temp_diurnal_drop"] = 0.0
 
-        # 4. Temperature Linear Trend (Slope over 24h)
         if len(temp_s) > 3:
-            time_sec = (dt.dropna() - dt.dropna().min()).dt.total_seconds().values
+            time_sec = (df[time_col].dropna() - df[time_col].dropna().min()).dt.total_seconds().values
             t_hours = time_sec / 3600.0
             if len(t_hours) == len(temp_s) and np.std(t_hours) > 1e-3:
                 slope, _ = np.polyfit(t_hours, temp_s.values, deg=1)
@@ -300,18 +348,134 @@ def compute_24h_environmental_features(
                 features["temp_linear_trend"] = 0.0
         else:
             features["temp_linear_trend"] = 0.0
+
+        if len(hum_s) > 3:
+            time_sec = (df[time_col].dropna() - df[time_col].dropna().min()).dt.total_seconds().values
+            t_hours = time_sec / 3600.0
+            if len(t_hours) == len(hum_s) and np.std(t_hours) > 1e-3:
+                slope_h, _ = np.polyfit(t_hours, hum_s.values, deg=1)
+                features["humidity_linear_trend"] = float(slope_h)
+            else:
+                features["humidity_linear_trend"] = 0.0
+        else:
+            features["humidity_linear_trend"] = 0.0
     else:
         features["temp_diurnal_drop"] = 0.0
         features["temp_linear_trend"] = 0.0
+        features["humidity_linear_trend"] = 0.0
 
-    for k, v in features.items():
+    # 4. Sub-windows: 6h and 12h
+    if has_time:
+        cutoff = df[time_col].max()
+        df_6h = df[df[time_col] >= (cutoff - pd.Timedelta(hours=6))]
+        df_12h = df[df[time_col] >= (cutoff - pd.Timedelta(hours=12))]
+    else:
+        n = len(df)
+        df_6h = df.iloc[max(0, int(n * 0.75)) :]
+        df_12h = df.iloc[max(0, int(n * 0.50)) :]
+
+    # 6h Temperature Stats
+    s6_t = (
+        pd.to_numeric(df_6h["temperature"], errors="coerce").dropna()
+        if "temperature" in df_6h.columns
+        else pd.Series([], dtype=float)
+    )
+    if len(s6_t) > 0:
+        t_mean_6h = float(s6_t.mean())
+        t_std_6h = float(s6_t.std(ddof=1)) if len(s6_t) > 1 else 0.0
+        t_min_6h = float(s6_t.min())
+        t_max_6h = float(s6_t.max())
+    else:
+        t_mean_6h, t_std_6h, t_min_6h, t_max_6h = t_mean, 0.0, t_min, t_max
+
+    features["temperature_mean_6h"] = t_mean_6h
+    features["temperature_std_6h"] = t_std_6h
+    features["temperature_min_6h"] = t_min_6h
+    features["temperature_max_6h"] = t_max_6h
+
+    # 12h Temperature Stats
+    s12_t = (
+        pd.to_numeric(df_12h["temperature"], errors="coerce").dropna()
+        if "temperature" in df_12h.columns
+        else pd.Series([], dtype=float)
+    )
+    if len(s12_t) > 0:
+        t_mean_12h = float(s12_t.mean())
+        t_std_12h = float(s12_t.std(ddof=1)) if len(s12_t) > 1 else 0.0
+        t_min_12h = float(s12_t.min())
+        t_max_12h = float(s12_t.max())
+    else:
+        t_mean_12h, t_std_12h, t_min_12h, t_max_12h = t_mean, 0.0, t_min, t_max
+
+    features["temperature_mean_12h"] = t_mean_12h
+    features["temperature_std_12h"] = t_std_12h
+
+    # 6h Humidity Stats
+    s6_h = (
+        pd.to_numeric(df_6h["humidity"], errors="coerce").dropna()
+        if "humidity" in df_6h.columns
+        else pd.Series([], dtype=float)
+    )
+    if len(s6_h) > 0:
+        h_mean_6h = float(s6_h.mean())
+        h_std_6h = float(s6_h.std(ddof=1)) if len(s6_h) > 1 else 0.0
+        h_min_6h = float(s6_h.min())
+        h_max_6h = float(s6_h.max())
+    else:
+        h_mean_6h, h_std_6h, h_min_6h, h_max_6h = h_mean, 0.0, h_min, h_max
+
+    features["humidity_mean_6h"] = h_mean_6h
+    features["humidity_std_6h"] = h_std_6h
+    features["humidity_min_6h"] = h_min_6h
+    features["humidity_max_6h"] = h_max_6h
+
+    # 12h Humidity Stats
+    s12_h = (
+        pd.to_numeric(df_12h["humidity"], errors="coerce").dropna()
+        if "humidity" in df_12h.columns
+        else pd.Series([], dtype=float)
+    )
+    if len(s12_h) > 0:
+        h_mean_12h = float(s12_h.mean())
+        h_std_12h = float(s12_h.std(ddof=1)) if len(s12_h) > 1 else 0.0
+        h_min_12h = float(s12_h.min())
+        h_max_12h = float(s12_h.max())
+    else:
+        h_mean_12h, h_std_12h, h_min_12h, h_max_12h = h_mean, 0.0, h_min, h_max
+
+    features["humidity_mean_12h"] = h_mean_12h
+    features["humidity_std_12h"] = h_std_12h
+
+    # 5. Additional Time-Window Features: Changes & Ranges
+    features["temperature_change_6h"] = float(s6_t.iloc[-1] - s6_t.iloc[0]) if len(s6_t) >= 2 else 0.0
+    features["temperature_change_12h"] = float(s12_t.iloc[-1] - s12_t.iloc[0]) if len(s12_t) >= 2 else 0.0
+    features["temperature_change_24h"] = float(temp_s.iloc[-1] - temp_s.iloc[0]) if len(temp_s) >= 2 else 0.0
+
+    features["temperature_range_6h"] = float(t_max_6h - t_min_6h)
+    features["temperature_range_12h"] = float(t_max_12h - t_min_12h)
+    features["temperature_range_24h"] = float(t_max - t_min)
+
+    features["humidity_change_6h"] = float(s6_h.iloc[-1] - s6_h.iloc[0]) if len(s6_h) >= 2 else 0.0
+    features["humidity_change_12h"] = float(s12_h.iloc[-1] - s12_h.iloc[0]) if len(s12_h) >= 2 else 0.0
+    features["humidity_change_24h"] = float(hum_s.iloc[-1] - hum_s.iloc[0]) if len(hum_s) >= 2 else 0.0
+
+    features["humidity_range_6h"] = float(h_max_6h - h_min_6h)
+    features["humidity_range_12h"] = float(h_max_12h - h_min_12h)
+    features["humidity_range_24h"] = float(h_max - h_min)
+
+    # Sanitize NaNs and Infs
+    for k in list(features.keys()):
+        v = features[k]
         if np.isnan(v) or np.isinf(v):
             features[k] = 0.0
 
+    # Ensure all 40 features are returned in exact order
+    ordered_features = {k: features.get(k, 0.0) for k in ENVIRONMENTAL_FEATURES}
+
     assert (
-        len(features) == 10
-    ), f"Expected exactly 10 environmental features, got {len(features)}"
-    return features
+        len(ordered_features) == 40
+    ), f"Expected exactly 40 environmental features, got {len(ordered_features)}"
+    return ordered_features
 
 
 def get_feature_names() -> List[str]:
